@@ -16,7 +16,7 @@
 - ``--channel`` : The channel ID from which messages will be deleted.
 - ``--user``: The user ID whose messages will be deleted.
   
-- **(MAKE SURE config.json IS IN THE SAME DIRECTORY AS main.py.)**
+- **(MAKE SURE config.json IS IN THE SAME DIRECTORY AS main.py)**
 
 ## Disclaimer
 - Deleting messages in bulk is against Discord's API Terms of Service if done improperly. Use responsibly.
