@@ -21,3 +21,6 @@
 ## Disclaimer
 - Deleting messages in bulk is against Discord's API Terms of Service if done improperly. Use responsibly.
 - If you're using a bot, it must have the necessary permissions in the server and channel.
+
+## Contact
+- Discord: **@1s64**
