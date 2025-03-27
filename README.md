@@ -15,6 +15,7 @@
 - ``--token``: Your bot's/your authentication token.
 - ``--channel`` : The channel ID from which messages will be deleted.
 - ``--user``: The user ID whose messages will be deleted.
+  
 - **(MAKE SURE config.json IS IN THE SAME DIRECTORY AS main.py.)**
 
 ## Disclaimer
