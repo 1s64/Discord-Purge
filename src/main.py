@@ -1,6 +1,7 @@
 import requests
 import time
 import json
+from datetime import datetime, timedelta
 
 # load default values from cfg
 CONFIG_FILE = "config.json"
@@ -26,6 +27,11 @@ DEFAULT_DELAY = config.get("default_delay")
 DEFAULT_DELAY2 = config.get("default_delay2")
 DEFAULT_LIMIT_RATE = config.get("default_limit_rate")
 
+# new default filter values
+DEFAULT_DAYS_OLDER_THAN = config.get("default_days_older_than", 0)
+DEFAULT_CONTAINS_TEXT = config.get("default_contains_text", "")
+DEFAULT_EXCLUDE_TEXT = config.get("default_exclude_text", "")
+
 # print function for config
 def print_config():
     print(f"  > Token: {TOKEN}")
@@ -33,7 +39,10 @@ def print_config():
     print(f"  > User ID: {USER_ID}\n")
     print(f"  > Delay Value 1: {DELAY_VALUE}")
     print(f"  > Delay Value 2: {DELAY_VALUE2}")
-    print(f"  > Limit Rate Delay: {LIMIT_RATE_VALUE}")
+    print(f"  > Limit Rate Delay: {LIMIT_RATE_VALUE}\n")
+    print(f"  > Delete Messages Older Than: {DAYS_OLDER_THAN} days")
+    print(f"  > Contains Text: '{CONTAINS_TEXT}'")
+    print(f"  > Exclude Text: '{EXCLUDE_TEXT}'\n")
 
 # use config input
 if config_loaded == True:
@@ -50,12 +59,14 @@ if initial_input == 'y':
 
     DELAY_VALUE, DELAY_VALUE2, LIMIT_RATE_VALUE = DEFAULT_DELAY, DEFAULT_DELAY2, DEFAULT_LIMIT_RATE
     
+    DAYS_OLDER_THAN, CONTAINS_TEXT, EXCLUDE_TEXT = DEFAULT_DAYS_OLDER_THAN, DEFAULT_CONTAINS_TEXT, DEFAULT_EXCLUDE_TEXT
+    
     print_config()
 else:
     print("\nNot using config... (Manual User Data)\n")
 
     # user info
-    print("Please enter User & Delay Info\n")
+    print("Please enter User Information, Delay Value & Filter Input\n")
 
     inputs = {
         "TOKEN": "  > Enter your Discord token: ",
@@ -69,6 +80,12 @@ else:
         "LIMIT_RATE_VALUE": "  > Enter limit rate delay (2.5, 5, etc.): "
     }
 
+    filter_inputs = {
+        "DAYS_OLDER_THAN": "  > Delete messages older than X days (0 for no age filter): ",
+        "CONTAINS_TEXT": "  > Only delete messages containing this text (leave blank to skip): ",
+        "EXCLUDE_TEXT": "  > Exclude messages containing this text (leave blank to skip): "
+    }
+
     # input
     TOKEN = input(inputs["TOKEN"]).strip() or DEFAULT_TOKEN
     CHANNEL_ID = input(inputs["CHANNEL_ID"]).strip() or DEFAULT_CHANNEL_ID
@@ -77,6 +94,10 @@ else:
     DELAY_VALUE = input(delay_inputs["DELAY_VALUE"]).strip() or str(DEFAULT_DELAY)
     DELAY_VALUE2 = input(delay_inputs["DELAY_VALUE2"]).strip() or DEFAULT_DELAY2
     LIMIT_RATE_VALUE = input(delay_inputs["LIMIT_RATE_VALUE"]).strip() or DEFAULT_LIMIT_RATE
+    print("")
+    DAYS_OLDER_THAN = int(input(filter_inputs["DAYS_OLDER_THAN"]).strip() or DEFAULT_DAYS_OLDER_THAN)
+    CONTAINS_TEXT = input(filter_inputs["CONTAINS_TEXT"]).strip() or DEFAULT_CONTAINS_TEXT
+    EXCLUDE_TEXT = input(filter_inputs["EXCLUDE_TEXT"]).strip() or DEFAULT_EXCLUDE_TEXT
 
     print("\nUsing information...\n")
     print_config()
@@ -168,7 +189,15 @@ def delete_my_messages():
         # update the last message ID for pagination
         last_message_id = messages[-1]["id"]
         
-        user_messages = [msg for msg in messages if str(msg["author"]["id"]) == USER_ID]
+        # filter messages based on user, age, content, exclusion
+        user_messages = [
+            msg for msg in messages 
+            if str(msg["author"]["id"]) == USER_ID  # only user's messages
+            and (DAYS_OLDER_THAN == 0 or 
+                 datetime.now() - datetime.fromisoformat(msg["timestamp"].replace('Z', '+00:00')) > timedelta(days=DAYS_OLDER_THAN))
+            and (not CONTAINS_TEXT or CONTAINS_TEXT.lower() in msg["content"].lower())
+            and (not EXCLUDE_TEXT or EXCLUDE_TEXT.lower() not in msg["content"].lower())
+        ]
         
         # if no user messages continue
         if not user_messages:
