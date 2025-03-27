@@ -5,5 +5,9 @@
     
     "default_delay": 0.75, 
     "default_delay2": 1.5,
-    "default_limit_rate": 3
+    "default_limit_rate": 3,
+
+    "default_days_older_than": 0,
+    "default_contains_text": "",
+    "default_exclude_text": ""
 }
