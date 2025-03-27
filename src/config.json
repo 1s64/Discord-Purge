@@ -1,0 +1,9 @@
+{
+    "default_token": "abcd1234", 
+    "default_channel_id": "123",
+    "default_user_id": "123",
+    
+    "default_delay": 0.75, 
+    "default_delay2": 1.5,
+    "default_limit_rate": 3
+}
